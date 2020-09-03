@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">mclean1-GearBook</string>
+    <string name="date">Date</string>
+    <string name="maker">Maker</string>
+    <string name="description">Description</string>
+    <string name="price">Price ($)</string>
+    <string name="comment">Comment</string>
+    <string name="apply">Apply</string>
+    <string name="delete">Delete</string>
+    <string name="add">Add</string>
+    <string name="cancel">Cancel</string>
+    <string name="expand_collapse">Expand/Collapse</string>
+    <string name="edit">Edit</string>
+    <string name="edit_item">Edit Item</string>
+    <string name="total_price">Total Price: $%d.%02d</string>
+    <string name="invalid_date">Invalid date.</string>
+    <string name="maker_empty">Maker cannot be empty.</string>
+    <string name="description_empty">Description cannot be empty.</string>
+    <string name="invalid_price">Invalid price.</string>
+    <string name="no_items">No items</string>
+</resources>
