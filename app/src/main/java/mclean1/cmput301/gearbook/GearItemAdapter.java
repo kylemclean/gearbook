@@ -1,6 +1,5 @@
 package mclean1.cmput301.gearbook;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,26 +12,32 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
-    private final Activity activity;
+/**
+ * An implementation of a RecyclerView adapter for a list of GearItems.
+ * In onBindViewHolder, the views in the passed GearItemViewHolder are
+ * updated to reflect the state of the GearItem at the passed index
+ * in the MainActivity's list of GearItems.
+ */
+public class GearItemAdapter extends RecyclerView.Adapter<GearItemViewHolder> {
+    private final MainActivity activity;
     private final ArrayList<GearItem> gearItems;
 
-    public MyAdapter(@NonNull Activity activity, @NonNull ArrayList<GearItem> gearItems) {
+    public GearItemAdapter(@NonNull MainActivity activity, @NonNull ArrayList<GearItem> gearItems) {
         this.activity = activity;
         this.gearItems = gearItems;
     }
 
     @NonNull
     @Override
-    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public GearItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.gear_item_card, parent, false);
 
-        return new MyViewHolder(view);
+        return new GearItemViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final MyViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final GearItemViewHolder holder, final int position) {
         final GearItem gearItem = gearItems.get(position);
         holder.descriptionTextView.setText(gearItem.getDescription());
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
@@ -52,6 +57,12 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
                 intent.putExtra(MainActivity.GEAR_ITEM, gearItem);
                 intent.putExtra(MainActivity.GEAR_ITEM_INDEX, position);
                 activity.startActivityForResult(intent, MainActivity.REQUEST_EDIT);
+            }
+        });
+        holder.deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                activity.deleteGearItem(gearItem);
             }
         });
         holder.setExpanded(false);

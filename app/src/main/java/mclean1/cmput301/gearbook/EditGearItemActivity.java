@@ -20,6 +20,25 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+/**
+ * The EditGearItemActivity allows the user to create, edit, and delete GearItems.
+ *
+ * To create a new GearItem, startActivityForResult an EditGearItemActivity.
+ * The intent should have the extra value GEAR_ITEM_INDEX which is the index
+ * the GearItem being edited is at or will be at.
+ *
+ * If a GearItem is passed in the intent as extra GEAR_ITEM, then that GearItem
+ * will be edited.
+ * If no GearItem is passed to the intent, then a new GearItem will be created.
+ *
+ * Upon completion of editing, the result will be RESULT_OK if the GearItem was
+ * created or edited, RESULT_CANCELED if the edit/create operation was cancelled,
+ * or RESULT_DELETE if the GearItem was deleted.
+ *
+ * The resulting intent will contain the GEAR_ITEM_INDEX that was passed in.
+ * If a GearItem was created or edited, then it will also contain that GearItem
+ * in EDITED_GEAR_ITEM.
+ */
 public class EditGearItemActivity extends AppCompatActivity {
     public static final String EDITED_GEAR_ITEM = "mclean1.cmput301.gearbook.EDITED_GEAR_ITEM";
 
@@ -34,22 +53,25 @@ public class EditGearItemActivity extends AppCompatActivity {
     private EditText priceEditText;
     private EditText commentEditText;
 
-    private Button applyButton;
-    private Button deleteButton;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_gear_item);
 
         dateEditText = findViewById(R.id.dateEditText);
+        dateEditText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                selectDate(view);
+            }
+        });
         makerEditText = findViewById(R.id.makerEditText);
         descriptionEditText = findViewById(R.id.descriptionEditText);
         priceEditText = findViewById(R.id.priceEditText);
         commentEditText = findViewById(R.id.commentEditText);
 
-        applyButton = findViewById(R.id.applyButton);
-        deleteButton = findViewById(R.id.deleteButton);
+        Button applyButton = findViewById(R.id.applyButton);
+        Button deleteButton = findViewById(R.id.deleteButton);
 
         gearItem = null;
 
@@ -70,7 +92,7 @@ public class EditGearItemActivity extends AppCompatActivity {
                     "%d.%02d", price / 100, price % 100));
             commentEditText.setText(gearItem.getComment());
             applyButton.setText(R.string.apply);
-            deleteButton.setTag(R.string.delete);
+            deleteButton.setText(R.string.delete);
         } else {
             dateEditText.setText("");
             makerEditText.setText("");
@@ -82,6 +104,9 @@ public class EditGearItemActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Show a DatePickerDialog and set the dateEditText to contain the chosen date.
+     */
     public void selectDate(View view) {
         Calendar calendar = Calendar.getInstance();
         Date dateInEditText = parseDate(dateEditText.getText().toString());
@@ -102,7 +127,11 @@ public class EditGearItemActivity extends AppCompatActivity {
         }, year, month, dayOfMonth).show();
     }
 
-    public @Nullable Date parseDate(@NonNull String text) {
+    /**
+     * Parses and returns a Date in yyyy-MM-dd format.
+     * @return the Date if it is valid, otherwise null
+     */
+    private @Nullable Date parseDate(@NonNull String text) {
         try {
             return new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(text);
         } catch (ParseException e) {
@@ -110,12 +139,16 @@ public class EditGearItemActivity extends AppCompatActivity {
         }
     }
 
-    public String dateToText(@NonNull Date date) {
+    private String dateToText(@NonNull Date date) {
         return new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(date);
     }
 
     /**
      * Apply changes to the GearItem being edited, or create a new one.
+     *
+     * If a GearItem was passed when starting this activity, then this
+     * will result in it being edited. Otherwise, a new GearItem will
+     * be created.
      */
     public void applyChanges(View view) {
         boolean error = false;
@@ -188,6 +221,10 @@ public class EditGearItemActivity extends AppCompatActivity {
 
     /**
      * Delete the GearItem being edited, or cancel the creation of one.
+     *
+     * If a GearItem was passed when starting this activity, then this
+     * will result in its deletion. Otherwise, the creation of a
+     * GearItem will be cancelled.
      */
     public void deleteOrCancel(View view) {
         Intent intent = new Intent(this, MainActivity.class);

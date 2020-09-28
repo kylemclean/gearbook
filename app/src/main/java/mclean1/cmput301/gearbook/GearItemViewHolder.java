@@ -10,16 +10,22 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class MyViewHolder extends RecyclerView.ViewHolder {
+/**
+ * A RecyclerView ViewHolder for a GearItem.
+ * Can be expanded and collapsed by clicking the expandCollapseButton,
+ * which toggles visibility of the secondaryLayout.
+ */
+public class GearItemViewHolder extends RecyclerView.ViewHolder {
     public final TextView descriptionTextView, dateTextView, priceTextView, makerTextView, commentTextView;
     public final ConstraintLayout secondaryLayout;
     public final ImageButton expandCollapseButton;
     public final Button editButton;
+    public final Button deleteButton;
 
     private static final @DrawableRes int EXPAND_IMAGE = R.drawable.ic_baseline_expand_more_24;
     private static final @DrawableRes int COLLAPSE_IMAGE = R.drawable.ic_baseline_expand_less_24;
 
-    public MyViewHolder(@NonNull final View itemView) {
+    public GearItemViewHolder(@NonNull final View itemView) {
         super(itemView);
         descriptionTextView = itemView.findViewById(R.id.descriptionTextView);
         dateTextView = itemView.findViewById(R.id.dateTextView);
@@ -39,6 +45,7 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
         });
 
         editButton = itemView.findViewById(R.id.editButton);
+        deleteButton = itemView.findViewById(R.id.deleteButton);
     }
 
     public void setExpanded(boolean expanded) {

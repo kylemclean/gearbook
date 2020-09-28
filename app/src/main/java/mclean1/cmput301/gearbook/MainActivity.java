@@ -12,8 +12,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.NoSuchElementException;
 
+/**
+ * MainActivity is the main Activity of the app.
+ * It contains the list of GearItems and presents it to the user.
+ * Users can view the list, edit or delete GearItems, and create new ones.
+ * It displays the total price of all items at the bottom.
+ * When editing or creating GearItems, the user is directed to the EditGearItemActivity.
+ */
 public class MainActivity extends AppCompatActivity {
     public static final String GEAR_ITEM = "mclean1.cmput301.gearbook.GEAR_ITEM";
     public static final String GEAR_ITEM_INDEX = "GEAR_ITEM_INDEX";
@@ -22,9 +29,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int REQUEST_CREATE = 0;
     public static final int REQUEST_EDIT = 1;
 
-    private RecyclerView recyclerView;
-    private MyAdapter adapter;
-    private RecyclerView.LayoutManager layoutManager;
+    private GearItemAdapter adapter;
 
     private final ArrayList<GearItem> gearItems = new ArrayList<>();
 
@@ -46,18 +51,69 @@ public class MainActivity extends AppCompatActivity {
 
         onItemsChange();
 
-        recyclerView = findViewById(R.id.recyclerView);
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
-        layoutManager = new LinearLayoutManager(this);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new MyAdapter(this, gearItems);
+        adapter = new GearItemAdapter(this, gearItems);
         recyclerView.setAdapter(adapter);
     }
 
-    public void addGearItem(View view) {
+    public void onClickAddButton(View view) {
         Intent intent = new Intent(this, EditGearItemActivity.class);
         intent.putExtra(GEAR_ITEM_INDEX, gearItems.size());
         startActivityForResult(intent, REQUEST_CREATE);
+    }
+
+    private void addGearItem(@NonNull GearItem gearItem) {
+        gearItems.add(gearItem);
+        adapter.notifyItemInserted(gearItems.size() - 1);
+        onItemsChange();
+    }
+
+    private void replaceGearItem(int index, @NonNull GearItem gearItem) {
+        if (index < 0 || index > gearItems.size())
+            throw new IndexOutOfBoundsException("tried to replace GearItem at out of bounds index" +
+                    index);
+
+        gearItems.set(index, gearItem);
+        adapter.notifyItemChanged(index);
+        onItemsChange();
+    }
+
+    private void deleteGearItem(int index) {
+        if (index < 0 || index > gearItems.size())
+            throw new IndexOutOfBoundsException("tried to delete GearItem at out of bounds index" +
+                    index);
+
+        gearItems.remove(index);
+        adapter.notifyItemRemoved(index);
+        adapter.notifyItemRangeChanged(index, gearItems.size());
+        onItemsChange();
+    }
+
+    public void deleteGearItem(@NonNull GearItem gearItem) {
+        int index = gearItems.indexOf(gearItem);
+        if (index == -1)
+            throw new NoSuchElementException("tried to delete GearItem not in gearItems list");
+
+        deleteGearItem(index);
+    }
+
+    private void onApplyChangesFromEdit(@NonNull Intent data, int gearItemIndex) {
+        GearItem gearItem = data.getParcelableExtra(EditGearItemActivity.EDITED_GEAR_ITEM);
+        if (gearItem == null)
+            throw new IllegalArgumentException("gearItem missing from intent data");
+
+        if (gearItemIndex == gearItems.size()) {
+            addGearItem(gearItem);
+        } else {
+            replaceGearItem(gearItemIndex, gearItem);
+        }
+    }
+
+    private void onDeleteFromEdit(int gearItemIndex) {
+        deleteGearItem(gearItemIndex);
     }
 
     @Override
@@ -78,29 +134,9 @@ public class MainActivity extends AppCompatActivity {
             throw new IllegalArgumentException("invalid index " + index);
 
         if (resultCode == RESULT_OK) {
-            GearItem gearItem = data.getParcelableExtra(EditGearItemActivity.EDITED_GEAR_ITEM);
-            if (gearItem == null)
-                throw new IllegalArgumentException("gearItem missing from intent data");
-
-            if (index == gearItems.size()) {
-                gearItems.add(gearItem);
-                adapter.notifyItemInserted(index);
-            } else {
-                gearItems.set(index, gearItem);
-                adapter.notifyItemChanged(index);
-            }
-            onItemsChange();
+            onApplyChangesFromEdit(data, index);
         } else if (resultCode == EditGearItemActivity.RESULT_DELETE) {
-            if (index < gearItems.size()) {
-                gearItems.remove(index);
-                adapter.notifyItemRemoved(index);
-                adapter.notifyItemRangeChanged(index, gearItems.size());
-                onItemsChange();
-            } else if (requestCode == REQUEST_CREATE) {
-                // cancel, no action needed
-            } else {
-                throw new IllegalStateException("tried to delete nonexistent gearItem");
-            }
+            onDeleteFromEdit(index);
         } else {
             throw new IllegalArgumentException("unknown resultCode " + resultCode);
         }
@@ -119,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
         expandCollapseButton.performClick();
     }
 
-    public void onItemsChange() {
+    private void onItemsChange() {
         TextView noItemsTextView = findViewById(R.id.noItems);
         noItemsTextView.setVisibility(gearItems.isEmpty() ? View.VISIBLE : View.GONE);
         updateTotalPrice();

@@ -6,6 +6,12 @@ import android.os.Parcelable;
 
 import java.util.Date;
 
+/**
+ * A GearItem is an object consisting of the attributes of an individual gear item.
+ *
+ * GearItems are Parcelable so that they can be passed between the
+ * MainActivity and the EditGearItemActivity.
+ */
 public class GearItem implements Parcelable {
     private final int MAX_MAKER_LENGTH;
     private final int MAX_DESCRIPTION_LENGTH;
@@ -17,7 +23,12 @@ public class GearItem implements Parcelable {
     private int priceInCents;
     private String comment;
 
-    public GearItem(Context context, Date date, String maker, String description, int priceInCents, String comment) {
+    public GearItem(Context context,
+                    Date date,
+                    String maker,
+                    String description,
+                    int priceInCents,
+                    String comment) {
         if (context == null)
             throw new NullPointerException("context cannot be null");
         MAX_MAKER_LENGTH = context.getResources().getInteger(R.integer.max_maker_length);
